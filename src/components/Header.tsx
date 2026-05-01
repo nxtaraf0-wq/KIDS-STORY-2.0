@@ -176,7 +176,7 @@ export default function Header() {
                       >
                         {voices.length > 0 ? (
                           voices.slice(0, 30).map((v, i) => (
-                            <option key={v.voiceURI} value={v.voiceURI}>
+                            <option key={`${v.voiceURI}-${i}`} value={v.voiceURI}>
                               {v.name} ({v.lang})
                             </option>
                           ))
@@ -210,13 +210,9 @@ export default function Header() {
               </div>
 
               <div className="p-6 border-t border-violet-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                {isAdmin ? (
+                {isAdmin && (
                   <Link to="/admin" className="flex items-center justify-center gap-2 w-full p-4 rounded-2xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-colors">
                     Admin Dashboard
-                  </Link>
-                ) : (
-                  <Link to="/admin/login" className="flex items-center justify-center gap-2 w-full p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 transition-colors">
-                    Author Login
                   </Link>
                 )}
               </div>

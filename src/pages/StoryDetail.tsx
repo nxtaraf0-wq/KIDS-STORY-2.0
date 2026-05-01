@@ -4,6 +4,7 @@ import { dbService } from '../services/db';
 import { Story } from '../types';
 import { Helmet } from 'react-helmet-async';
 import Markdown from 'react-markdown';
+import AdBanner from '../components/AdBanner';
 import { Bookmark, Clock, Eye, ChevronLeft, Type, PlayCircle, PauseCircle, StopCircle, Headphones, Sparkles, Heart, Star } from 'lucide-react';
 import { useStore } from '../store';
 import { motion, useScroll, useSpring } from 'motion/react';
@@ -206,7 +207,7 @@ export default function StoryDetail() {
                 {voices.length > 0 ? (
                   // Limit the list safely, browsers could supply 100+ voices
                   voices.slice(0, 30).map((v, i) => (
-                    <option key={v.voiceURI} value={v.voiceURI}>
+                    <option key={`${v.voiceURI}-${i}`} value={v.voiceURI}>
                       Voice Model {i+1}: {v.name} ({v.lang})
                     </option>
                   ))
@@ -291,6 +292,8 @@ export default function StoryDetail() {
             </div>
           </div>
         </div>
+        
+        <AdBanner />
       </div>
     </article>
   );

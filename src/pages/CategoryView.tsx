@@ -4,6 +4,7 @@ import { dbService } from '../services/db';
 import { Category, Story } from '../types';
 import { Helmet } from 'react-helmet-async';
 import StoryCard from '../components/StoryCard';
+import AdBanner from '../components/AdBanner';
 
 export default function CategoryView() {
   const { slug } = useParams<{ slug: string }>();
@@ -76,6 +77,8 @@ export default function CategoryView() {
           </div>
         )}
       </div>
+
+      <AdBanner />
     </div>
   );
 }

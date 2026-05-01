@@ -3,6 +3,7 @@ import { dbService } from '../services/db';
 import { Category, Story, AppSetting } from '../types';
 import { Helmet } from 'react-helmet-async';
 import StoryCard from '../components/StoryCard';
+import AdBanner from '../components/AdBanner';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Sparkles, Star } from 'lucide-react';
@@ -130,6 +131,8 @@ export default function Home() {
           })}
         </div>
       </section>
+
+      <AdBanner />
     </div>
   );
 }

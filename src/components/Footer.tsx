@@ -16,7 +16,6 @@ export default function Footer() {
             <ul className="space-y-3 font-medium">
               <li><Link to="/" className="text-slate-600 hover:text-fuchsia-600 dark:text-slate-400 dark:hover:text-fuchsia-400 transition-colors">Home</Link></li>
               <li><Link to="/categories" className="text-slate-600 hover:text-fuchsia-600 dark:text-slate-400 dark:hover:text-fuchsia-400 transition-colors">All Categories</Link></li>
-              <li><Link to="/admin" className="text-slate-600 hover:text-fuchsia-600 dark:text-slate-400 dark:hover:text-fuchsia-400 transition-colors">Author Login</Link></li>
             </ul>
           </div>
           <div>
