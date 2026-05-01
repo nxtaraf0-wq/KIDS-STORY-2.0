@@ -10,6 +10,7 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,11 +59,17 @@ export default function Header() {
             <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-fuchsia-600 dark:text-slate-300 dark:hover:text-fuchsia-400 transition-colors font-bold">
               <Sparkles className="w-4 h-4" /> Home
             </Link>
-            <Link to="/categories" className="flex items-center gap-2 text-slate-600 hover:text-fuchsia-600 dark:text-slate-300 dark:hover:text-fuchsia-400 transition-colors font-bold">
+            <Link to="/categories" className="flex items-center gap-2 text-slate-600 hover:text-fuchsia-600 dark:text-slate-300 dark:hover:text-fuchsia-400 transition-colors font-bold ml-2">
               <Compass className="w-4 h-4" /> Categories
             </Link>
+            <Link to="/new-arrivals" className="flex items-center gap-2 text-slate-600 hover:text-violet-600 dark:text-slate-300 dark:hover:text-violet-400 transition-colors font-bold ml-2">
+              <Sparkles className="w-4 h-4" /> New
+            </Link>
+            <Link to="/most-popular" className="flex items-center gap-2 text-slate-600 hover:text-amber-500 dark:text-slate-300 dark:hover:text-amber-400 transition-colors font-bold ml-2">
+              <Star className="w-4 h-4" /> Popular
+            </Link>
             
-            <div className="h-6 w-px bg-violet-200 dark:bg-slate-700 mx-2"></div>
+            <div className="h-6 w-px bg-violet-200 dark:bg-slate-700 mx-2 ml-4"></div>
             
             <button 
               onClick={toggleDarkMode}
@@ -85,10 +92,10 @@ export default function Header() {
               <Search className="w-5 h-5" /> Search
             </button>
             <button 
-              onClick={() => setIsMobileMenuOpen(true)}
+              onClick={() => setIsSettingsOpen(true)}
               className="p-2.5 rounded-2xl hover:bg-violet-100 dark:hover:bg-slate-800 transition-all text-violet-600 dark:text-amber-400 font-bold flex items-center gap-2"
             >
-              <SettingsIcon className="w-5 h-5" /> Menu
+              <SettingsIcon className="w-5 h-5" /> Settings
             </button>
           </nav>
 
@@ -162,47 +169,35 @@ export default function Header() {
         )}
       </AnimatePresence>
 
-      {/* Mobile/Sidebar Menu */}
+      {/* Settings Modal */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
+        {isSettingsOpen && (
           <>
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"
+              onClick={() => setIsSettingsOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[80]"
             />
             <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed top-0 right-0 bottom-0 w-80 md:w-96 bg-white dark:bg-slate-900 z-[70] shadow-2xl flex flex-col border-l border-violet-100 dark:border-slate-800"
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className="fixed top-20 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[500px] bg-white dark:bg-slate-900 z-[90] shadow-2xl rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 max-h-[80vh] overflow-y-auto"
             >
-              <div className="p-6 flex items-center justify-between border-b border-violet-100 dark:border-slate-800">
-                <span className="font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">
-                  Menu ✨
-                </span>
+              <div className="p-6 border-b border-violet-100 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm z-10">
+                <h2 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 flex items-center gap-2">
+                  <SettingsIcon className="w-6 h-6 text-violet-500" /> Settings
+                </h2>
                 <button 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="p-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
-              <div className="overflow-y-auto flex-1 p-6 space-y-6">
-                <div className="space-y-3 md:hidden">
-                  <Link to="/" className="flex items-center gap-3 p-4 rounded-2xl bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 font-bold active:scale-95 transition-transform">
-                    <Sparkles className="w-5 h-5 text-violet-500" /> Home
-                  </Link>
-                  <Link to="/categories" className="flex items-center gap-3 p-4 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-700 dark:text-fuchsia-300 font-bold active:scale-95 transition-transform">
-                    <Compass className="w-5 h-5 text-fuchsia-500" /> All Categories
-                  </Link>
-                </div>
-
-                <div className="pt-6 border-t border-violet-100 dark:border-slate-800">
+              <div className="p-6 space-y-6">
                   <h3 className="text-sm font-extrabold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <Type className="w-4 h-4" /> Text & Appearance
                   </h3>
@@ -228,7 +223,7 @@ export default function Header() {
                           { id: 'serif', label: 'Classic' },
                           { id: 'mono', label: 'Technical' },
                           { id: 'comic-sans', label: 'Playful', cls: 'font-comic' }
-                        ].map(font => (
+                        ].map((font) => (
                           <button 
                             key={font.id}
                             onClick={() => setFontFamily(font.id)}
@@ -275,7 +270,7 @@ export default function Header() {
                         <Volume2 className="w-4 h-4 text-violet-500" /> Voice Speed
                       </span>
                       <div className="flex gap-2">
-                        {[0.5, 1, 1.5, 2].map(speed => (
+                        {[0.5, 1, 1.5, 2].map((speed) => (
                           <button 
                             key={speed}
                             onClick={() => setSpeechRate(speed)}
@@ -307,6 +302,68 @@ export default function Header() {
                       </label>
                     </div>
                   </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile/Sidebar Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="fixed top-0 right-0 bottom-0 w-80 md:w-96 bg-white dark:bg-slate-900 z-[70] shadow-2xl flex flex-col border-l border-violet-100 dark:border-slate-800"
+            >
+              <div className="p-6 flex items-center justify-between border-b border-violet-100 dark:border-slate-800">
+                <span className="font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">
+                  Menu ✨
+                </span>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 p-6 space-y-6">
+                <div className="space-y-3 md:hidden">
+                  <Link to="/" className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold active:scale-95 transition-transform" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Sparkles className="w-5 h-5 text-violet-500" /> Home
+                  </Link>
+                  <Link to="/categories" className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold active:scale-95 transition-transform" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Compass className="w-5 h-5 text-fuchsia-500" /> All Categories
+                  </Link>
+                  <Link to="/new-arrivals" className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold active:scale-95 transition-transform" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Sparkles className="w-5 h-5 text-violet-500" /> New Arrivals
+                  </Link>
+                  <Link to="/most-popular" className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold active:scale-95 transition-transform" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Star className="w-5 h-5 text-amber-500" /> Most Popular
+                  </Link>
+                </div>
+
+                <div className="pt-6 border-t border-violet-100 dark:border-slate-800">
+                  <button 
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setIsSettingsOpen(true);
+                    }}
+                    className="w-full flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold active:scale-95 transition-transform"
+                  >
+                    <SettingsIcon className="w-5 h-5 text-slate-400" /> Settings
+                  </button>
                 </div>
               </div>
 

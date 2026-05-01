@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { dbService } from '../services/db';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { db, auth, handleFirestoreError, OperationType } from '../firebase';
+import { doc, setDoc, addDoc, collection } from 'firebase/firestore';
 
 export default function Settings() {
   const [heroImage, setHeroImage] = useState('');
@@ -10,6 +10,74 @@ export default function Settings() {
   const [adSlot, setAdSlot] = useState('');
   const [socialLinks, setSocialLinks] = useState({ youtube: '', instagram: '', facebook: '' });
   const [saving, setSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeedData = async () => {
+    if (!confirm('This will add 10 categories and 20 stories. Are you sure?')) return;
+    setSeeding(true);
+    try {
+      const now = Date.now();
+      const authorId = auth.currentUser?.uid || 'system';
+      
+      const categories = [
+        { name: 'Bedtime Stories', slug: 'bedtime-stories', theme: 'purple', imageUrl: 'https://images.unsplash.com/photo-1544256718-3b6102360b61?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Animal Tales', slug: 'animal-tales', theme: 'amber', imageUrl: 'https://images.unsplash.com/photo-1560730415-9c98834927b2?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Sci-Fi Adventures', slug: 'sci-fi-adventures', theme: 'blue', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Fairy Tales', slug: 'fairy-tales', theme: 'pink', imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Mystery Solvers', slug: 'mystery-solvers', theme: 'slate', imageUrl: 'https://images.unsplash.com/photo-1542456424-9b932be0f5da?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Superhero Legends', slug: 'superhero-legends', theme: 'red', imageUrl: 'https://images.unsplash.com/photo-1620336655055-088d06e36bf0?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Funny Stories', slug: 'funny-stories', theme: 'yellow', imageUrl: 'https://images.unsplash.com/photo-1545041188-46aaacfdadbb?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Space Explorers', slug: 'space-explorers', theme: 'indigo', imageUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Ocean Wonders', slug: 'ocean-wonders', theme: 'cyan', imageUrl: 'https://images.unsplash.com/photo-1518467166778-b88f373ff25?auto=format&fit=crop&q=80&w=800' },
+        { name: 'Magic & Wizards', slug: 'magic-wizards', theme: 'violet', imageUrl: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?auto=format&fit=crop&q=80&w=800' },
+      ];
+
+      const categoryIds: string[] = [];
+      
+      for (const cat of categories) {
+        const docRef = await addDoc(collection(db, 'categories'), {
+          ...cat,
+          enabled: true,
+          createdAt: now,
+          updatedAt: now,
+          authorId
+        });
+        categoryIds.push(docRef.id);
+      }
+
+      for (let i = 1; i <= 20; i++) {
+        const catId = categoryIds[i % categoryIds.length];
+        const catTheme = categories[i % categories.length].theme;
+        
+        await addDoc(collection(db, 'stories'), {
+          title: `Amazing Story ${i}`,
+          slug: `amazing-story-${i}-${Date.now()}`,
+          categoryId: catId,
+          theme: catTheme || 'violet',
+          language: 'en-US',
+          bannerUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=1200',
+          thumbnailUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=800',
+          content: `This is the awesome content of amazing story ${i}. Once upon a time, there was a great adventure waiting to happen. The heroes traveled far and wide across the magnificent landscapes. They encountered challenges, but with teamwork and bravery, they overcame them all. The end.`,
+          metaTitle: `Amazing Story ${i} - A beautiful kids story`,
+          metaDescription: `Read about the amazing adventures in story ${i}.`,
+          keywords: 'story, kids, fun',
+          readingTime: 3,
+          views: Math.floor(Math.random() * 1000),
+          published: true,
+          createdAt: now - (i * 100000),
+          updatedAt: now,
+          authorId
+        });
+      }
+
+      alert('Successfully seeded 10 categories and 20 stories!');
+    } catch (e) {
+      console.error(e);
+      alert('Error seeding data. Admin access required.');
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   useEffect(() => {
     async function load() {
@@ -118,12 +186,29 @@ export default function Settings() {
            </div>
          </div>
 
-         <div className="flex justify-end">
-           <button type="submit" disabled={saving} className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30 disabled:opacity-50">
-             {saving ? 'Saving...' : 'Save Settings'}
-           </button>
-         </div>
-      </form>
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <h2 className="text-xl font-bold mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">Seed Data</h2>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <p className="text-sm text-slate-500 mb-0">Generate 10 categories and 20 sample stories for testing.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleSeedData}
+                disabled={seeding}
+                className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50"
+              >
+                {seeding ? 'Seeding...' : 'Seed Data'}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <button type="submit" disabled={saving} className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30 disabled:opacity-50">
+              {saving ? 'Saving...' : 'Save Settings'}
+            </button>
+          </div>
+        </form>
     </div>
   );
 }

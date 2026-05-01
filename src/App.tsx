@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import CategoryView from './pages/CategoryView';
 import StoryDetail from './pages/StoryDetail';
 import SearchResults from './pages/SearchResults';
+import NewArrivals from './pages/NewArrivals';
+import MostPopular from './pages/MostPopular';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 
@@ -28,6 +30,8 @@ export default function App() {
             <Route path="categories/:slug" element={<CategoryView />} />
             <Route path="story/:slug" element={<StoryDetail />} />
             <Route path="search" element={<SearchResults />} />
+            <Route path="new-arrivals" element={<NewArrivals />} />
+            <Route path="most-popular" element={<MostPopular />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<Terms />} />
           </Route>
