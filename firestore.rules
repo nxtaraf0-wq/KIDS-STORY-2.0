@@ -1,0 +1,164 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- PRIMITIVES ---
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        request.auth.token.email == 'lamimhosain285@gmail.com' || 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // --- VALIDATION BLUEPRINTS ---
+    function isValidAdmin(data) {
+      return data.keys().hasAll(['email']) && 
+             data.keys().size() == 1 &&
+             data.email is string && data.email.size() <= 200;
+    }
+
+    function isValidCategory(data) {
+      // Must check sizes for all strings
+      return data.keys().hasAll(['name', 'slug', 'theme', 'imageUrl', 'enabled', 'createdAt', 'updatedAt', 'authorId']) &&
+             data.keys().size() == 8 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.slug is string && data.slug.size() > 0 && data.slug.size() <= 100 &&
+             data.theme is string && data.theme.size() > 0 && data.theme.size() <= 50 &&
+             data.imageUrl is string && data.imageUrl.size() <= 1000 &&
+             data.enabled is bool &&
+             data.createdAt is number && 
+             data.updatedAt is number &&
+             data.authorId is string && data.authorId == request.auth.uid;
+    }
+
+    function isValidStory(data) {
+      return data.keys().hasAll(['title', 'slug', 'categoryId', 'theme', 'language', 'bannerUrl', 'thumbnailUrl', 'content', 'metaTitle', 'metaDescription', 'keywords', 'readingTime', 'views', 'status', 'createdAt', 'updatedAt', 'authorId']) &&
+             data.keys().size() == 17 &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.slug is string && data.slug.size() > 0 && data.slug.size() <= 200 &&
+             data.categoryId is string && data.categoryId.size() > 0 && data.categoryId.size() <= 128 &&
+             data.theme is string && data.theme.size() > 0 && data.theme.size() <= 50 &&
+             data.language is string && data.language.size() > 0 && data.language.size() <= 50 &&
+             data.bannerUrl is string && data.bannerUrl.size() <= 1000 &&
+             data.thumbnailUrl is string && data.thumbnailUrl.size() <= 1000 &&
+             data.content is string && data.content.size() <= 100000 &&
+             data.metaTitle is string && data.metaTitle.size() <= 100 &&
+             data.metaDescription is string && data.metaDescription.size() <= 300 &&
+             data.keywords is string && data.keywords.size() <= 200 &&
+             data.readingTime is number &&
+             data.views is number &&
+             data.status is string && data.status.size() > 0 && data.status.size() <= 20 &&
+             data.createdAt is number && 
+             data.updatedAt is number &&
+             data.authorId is string && data.authorId == request.auth.uid;
+    }
+
+    function isValidSetting(data) {
+      return data.keys().hasAll(['type', 'payload', 'updatedAt']) &&
+             data.keys().size() == 3 &&
+             data.type is string && data.type.size() > 0 && data.type.size() <= 50 &&
+             data.payload is string && data.payload.size() <= 10000 &&
+             data.updatedAt is number;
+    }
+
+    // --- COLLECTIONS ---
+
+    // Admins Collection
+    match /admins/{userId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isValidId(userId) && isValidAdmin(incoming());
+      allow update: if false; // Admins are immutable, delete and recreate
+      allow delete: if isAdmin();
+      allow list: if isAdmin();
+    }
+
+    // Categories Collection
+    match /categories/{categoryId} {
+      allow read: if true; // Public read
+      allow create: if isAdmin() && isValidId(categoryId) && 
+                    isValidCategory(incoming()) && 
+                    incoming().createdAt == request.time.toMillis() &&
+                    incoming().updatedAt == request.time.toMillis();
+      allow update: if isAdmin() && isValidId(categoryId) && 
+                    // To update, it must still be a valid category structure after update
+                    incoming().diff(existing()).affectedKeys().hasAny(['name', 'slug', 'theme', 'imageUrl', 'enabled', 'updatedAt']) &&
+                    incoming().authorId == existing().authorId &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().updatedAt == request.time.toMillis() &&
+                    incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 100 &&
+                    incoming().slug is string && incoming().slug.size() > 0 && incoming().slug.size() <= 100 &&
+                    incoming().theme is string && incoming().theme.size() > 0 && incoming().theme.size() <= 50 &&
+                    incoming().imageUrl is string && incoming().imageUrl.size() <= 1000 &&
+                    incoming().enabled is bool;
+      allow delete: if isAdmin();
+      allow list: if true;
+    }
+
+    // Stories Collection
+    match /stories/{storyId} {
+      allow read: if true; // Public read
+      allow create: if isAdmin() && isValidId(storyId) && 
+                    isValidStory(incoming()) &&
+                    incoming().createdAt == request.time.toMillis() &&
+                    incoming().updatedAt == request.time.toMillis() &&
+                    exists(/databases/$(database)/documents/categories/$(incoming().categoryId)); // Relational check
+      
+      allow update: if isValidId(storyId) && (
+                      (isAdmin() && 
+                       incoming().diff(existing()).affectedKeys().hasAny(['title', 'slug', 'categoryId', 'theme', 'language', 'bannerUrl', 'thumbnailUrl', 'content', 'metaTitle', 'metaDescription', 'keywords', 'readingTime', 'status', 'updatedAt']) &&
+                       incoming().authorId == existing().authorId &&
+                       incoming().createdAt == existing().createdAt &&
+                       // views shouldn't be overridden arbitrary by admin easily, but let's allow it if needed, or keep it immutable here
+                       incoming().updatedAt == request.time.toMillis() &&
+                       incoming().title is string && incoming().title.size() > 0 && incoming().title.size() <= 200 &&
+                       incoming().slug is string && incoming().slug.size() > 0 && incoming().slug.size() <= 200 &&
+                       incoming().categoryId is string && incoming().categoryId.size() > 0 && incoming().categoryId.size() <= 128 &&
+                       (incoming().categoryId == existing().categoryId || exists(/databases/$(database)/documents/categories/$(incoming().categoryId))) &&
+                       incoming().theme is string && incoming().theme.size() > 0 && incoming().theme.size() <= 50 &&
+                       incoming().language is string && incoming().language.size() > 0 && incoming().language.size() <= 50 &&
+                       incoming().bannerUrl is string && incoming().bannerUrl.size() <= 1000 &&
+                       incoming().thumbnailUrl is string && incoming().thumbnailUrl.size() <= 1000 &&
+                       incoming().content is string && incoming().content.size() <= 100000 &&
+                       incoming().metaTitle is string && incoming().metaTitle.size() <= 100 &&
+                       incoming().metaDescription is string && incoming().metaDescription.size() <= 300 &&
+                       incoming().keywords is string && incoming().keywords.size() <= 200 &&
+                       incoming().readingTime is number &&
+                       incoming().status is string && incoming().status.size() > 0 && incoming().status.size() <= 20
+                      ) ||
+                      // Public view increment
+                      (incoming().diff(existing()).affectedKeys().hasOnly(['views']) &&
+                       incoming().views == existing().views + 1 &&
+                       // Implicitly ensures all other fields are identical
+                       incoming().views is number)
+                    );
+      allow delete: if isAdmin();
+      allow list: if true;
+    }
+
+    // Settings Collection
+    match /settings/{settingId} {
+      allow read: if true; // Public needs to read settings
+      allow create: if isAdmin() && isValidId(settingId) && 
+                    isValidSetting(incoming()) &&
+                    incoming().updatedAt == request.time.toMillis();
+      allow update: if isAdmin() && isValidId(settingId) && 
+                    incoming().diff(existing()).affectedKeys().hasAny(['payload', 'updatedAt']) &&
+                    incoming().type == existing().type &&
+                    incoming().updatedAt == request.time.toMillis() &&
+                    incoming().payload is string && incoming().payload.size() <= 10000;
+      allow delete: if isAdmin();
+      allow list: if true;
+    }
+  }
+}

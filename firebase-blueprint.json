@@ -1,0 +1,83 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Represents a story category.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name of the category" },
+        "slug": { "type": "string", "description": "URL-friendly slug" },
+        "theme": { "type": "string", "description": "Theme: Default, Kids, Horror, Moral, Royal" },
+        "imageUrl": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "createdAt": { "type": "integer" },
+        "updatedAt": { "type": "integer" },
+        "authorId": { "type": "string" }
+      },
+      "required": ["name", "slug", "theme", "imageUrl", "enabled", "createdAt", "updatedAt", "authorId"]
+    },
+    "Story": {
+      "title": "Story",
+      "description": "Represents a single story.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "theme": { "type": "string" },
+        "language": { "type": "string" },
+        "bannerUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "content": { "type": "string" },
+        "metaTitle": { "type": "string" },
+        "metaDescription": { "type": "string" },
+        "keywords": { "type": "string" },
+        "readingTime": { "type": "integer" },
+        "views": { "type": "integer" },
+        "status": { "type": "string", "description": "published or draft" },
+        "createdAt": { "type": "integer" },
+        "updatedAt": { "type": "integer" },
+        "authorId": { "type": "string" }
+      },
+      "required": ["title", "slug", "categoryId", "theme", "language", "bannerUrl", "thumbnailUrl", "content", "readingTime", "views", "status", "createdAt", "updatedAt", "authorId"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "App settings (Social, Ads, Hero).",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "payload": { "type": "string", "description": "JSON string of setting data" },
+        "updatedAt": { "type": "integer" }
+      },
+      "required": ["type", "payload", "updatedAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "List of admin users.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Stores all story categories"
+    },
+    "/stories/{storyId}": {
+      "schema": { "$ref": "#/entities/Story" },
+      "description": "Stores all stories written by admins"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Setting" },
+      "description": "Global application settings managed by admins"
+    },
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Authorized admin users who can manage content"
+    }
+  }
+}
