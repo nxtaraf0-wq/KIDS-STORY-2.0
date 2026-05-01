@@ -7,6 +7,8 @@ interface UserPreferences {
   speechRate: number;
   fontFamily: string;
   selectedVoiceURI: string;
+  vfxEnabled: boolean;
+  bgmEnabled: boolean;
   likedStories: string[];
   ratedStories: Record<string, number>;
   toggleDarkMode: () => void;
@@ -16,6 +18,8 @@ interface UserPreferences {
   setSpeechRate: (rate: number) => void;
   setFontFamily: (font: string) => void;
   setSelectedVoiceURI: (uri: string) => void;
+  setVfxEnabled: (enabled: boolean) => void;
+  setBgmEnabled: (enabled: boolean) => void;
   likeStory: (storyId: string) => void;
   unlikeStory: (storyId: string) => void;
   rateStory: (storyId: string, rating: number) => void;
@@ -28,6 +32,8 @@ export const useStore = create<UserPreferences>((set) => ({
   speechRate: JSON.parse(localStorage.getItem('speechRate') || '1'),
   fontFamily: localStorage.getItem('fontFamily') || 'sans',
   selectedVoiceURI: localStorage.getItem('selectedVoiceURI') || '',
+  vfxEnabled: JSON.parse(localStorage.getItem('vfxEnabled') || 'true'),
+  bgmEnabled: JSON.parse(localStorage.getItem('bgmEnabled') || 'true'),
   likedStories: JSON.parse(localStorage.getItem('likedStories') || '[]'),
   ratedStories: JSON.parse(localStorage.getItem('ratedStories') || '{}'),
   
@@ -68,6 +74,16 @@ export const useStore = create<UserPreferences>((set) => ({
   setSelectedVoiceURI: (uri) => set(() => {
     localStorage.setItem('selectedVoiceURI', uri);
     return { selectedVoiceURI: uri };
+  }),
+
+  setVfxEnabled: (enabled) => set(() => {
+    localStorage.setItem('vfxEnabled', JSON.stringify(enabled));
+    return { vfxEnabled: enabled };
+  }),
+
+  setBgmEnabled: (enabled) => set(() => {
+    localStorage.setItem('bgmEnabled', JSON.stringify(enabled));
+    return { bgmEnabled: enabled };
   }),
 
   likeStory: (storyId) => set((state) => {

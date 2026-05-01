@@ -248,7 +248,7 @@ export default function StoryDetail() {
           </div>
         </div>
 
-        <div className={`prose dark:prose-invert max-w-none ${fontFamily === 'serif' ? 'font-serif' : 'font-sans'} ${fontClasses[fontSize]} leading-loose text-slate-700 dark:text-slate-300
+        <div className={`prose dark:prose-invert max-w-none ${fontFamily === 'serif' ? 'font-serif' : fontFamily === 'mono' ? 'font-mono' : fontFamily === 'comic-sans' ? 'font-comic' : 'font-sans'} ${fontClasses[fontSize]} leading-loose text-slate-700 dark:text-slate-300
            prose-p:mb-8 prose-p:font-medium
            prose-headings:font-extrabold prose-headings:text-transparent prose-headings:bg-clip-text prose-headings:bg-gradient-to-r prose-headings:from-violet-600 prose-headings:to-fuchsia-600
            prose-img:rounded-3xl prose-img:shadow-xl prose-img:border-4 prose-img:border-white

@@ -6,7 +6,7 @@ import { auth } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Header() {
-  const { isDarkMode, toggleDarkMode, speechRate, setSpeechRate, fontFamily, setFontFamily, selectedVoiceURI, setSelectedVoiceURI } = useStore();
+  const { isDarkMode, toggleDarkMode, speechRate, setSpeechRate, fontFamily, setFontFamily, selectedVoiceURI, setSelectedVoiceURI, vfxEnabled, setVfxEnabled, bgmEnabled, setBgmEnabled } = useStore();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -204,75 +204,107 @@ export default function Header() {
 
                 <div className="pt-6 border-t border-violet-100 dark:border-slate-800">
                   <h3 className="text-sm font-extrabold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <SettingsIcon className="w-4 h-4" /> Settings
+                    <Type className="w-4 h-4" /> Text & Appearance
                   </h3>
                   
-                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-2 border border-slate-100 dark:border-slate-800 mb-4">
-                    <button 
-                      onClick={toggleDarkMode}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-colors group"
-                    >
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 mb-6 space-y-4">
+                    <div className="flex items-center justify-between">
                       <span className="font-bold text-slate-700 dark:text-slate-200">Dark Mode</span>
-                      <div className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'bg-amber-100 text-amber-500' : 'bg-slate-200 text-slate-500'}`}>
-                        {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                      <button 
+                        onClick={toggleDarkMode}
+                        className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'bg-amber-100 text-amber-500 hover:bg-amber-200' : 'bg-slate-200 text-slate-500 hover:bg-slate-300'}`}
+                      >
+                        {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                      </button>
+                    </div>
+
+                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                      <span className="font-bold text-slate-700 dark:text-slate-200 block mb-3">
+                        Story Font
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { id: 'sans', label: 'Modern' },
+                          { id: 'serif', label: 'Classic' },
+                          { id: 'mono', label: 'Technical' },
+                          { id: 'comic-sans', label: 'Playful', cls: 'font-comic' }
+                        ].map(font => (
+                          <button 
+                            key={font.id}
+                            onClick={() => setFontFamily(font.id)}
+                            className={`py-2 px-2 text-sm font-bold rounded-xl transition-all ${fontFamily === font.id ? 'bg-fuchsia-500 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-500 shadow-sm border border-slate-100 dark:border-slate-700'} ${font.cls || ''}`}
+                            style={font.cls ? {} : { fontFamily: font.id === 'sans' ? 'sans-serif' : font.id === 'serif' ? 'serif' : 'monospace' }}
+                          >
+                            {font.label}
+                          </button>
+                        ))}
                       </div>
-                    </button>
+                    </div>
                   </div>
 
-                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 space-y-3 mb-4">
-                    <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-                      <Volume2 className="w-4 h-4 text-violet-500" /> Voice Speed
-                    </span>
-                    <div className="flex gap-2 mb-4">
-                      {[0.5, 1, 1.5, 2].map(speed => (
-                        <button 
-                          key={speed}
-                          onClick={() => setSpeechRate(speed)}
-                          className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${speechRate === speed ? 'bg-violet-500 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                  <h3 className="text-sm font-extrabold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <Volume2 className="w-4 h-4" /> Sound System
+                  </h3>
+
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 space-y-4 mb-4">
+                    <div>
+                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 mb-3">
+                        <Headphones className="w-4 h-4 text-emerald-500" /> Voice Model
+                      </span>
+                      <div className="bg-white dark:bg-slate-900 rounded-xl p-2 border border-slate-200 dark:border-slate-700 shadow-inner">
+                        <select 
+                          value={selectedVoiceURI} 
+                          onChange={(e) => setSelectedVoiceURI(e.target.value)}
+                          className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-slate-700 dark:text-slate-300 font-bold text-sm cursor-pointer p-1"
                         >
-                          {speed}x
-                        </button>
-                      ))}
+                          {voices.length > 0 ? (
+                            voices.slice(0, 30).map((v, i) => (
+                              <option key={`${v.voiceURI}-${i}`} value={v.voiceURI}>
+                                {v.name} ({v.lang})
+                              </option>
+                            ))
+                          ) : (
+                            <option>Loading Voices...</option>
+                          )}
+                        </select>
+                      </div>
                     </div>
-                    <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 mt-4 mb-2">
-                      <Headphones className="w-4 h-4 text-emerald-500" /> Voice Model
-                    </span>
-                    <div className="bg-white dark:bg-slate-900 rounded-xl p-2 border border-slate-200 dark:border-slate-700 shadow-inner">
-                      <select 
-                        value={selectedVoiceURI} 
-                        onChange={(e) => setSelectedVoiceURI(e.target.value)}
-                        className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-slate-700 dark:text-slate-300 font-bold text-sm cursor-pointer p-1"
-                      >
-                        {voices.length > 0 ? (
-                          voices.slice(0, 30).map((v, i) => (
-                            <option key={`${v.voiceURI}-${i}`} value={v.voiceURI}>
-                              {v.name} ({v.lang})
-                            </option>
-                          ))
-                        ) : (
-                          <option>Loading Voices...</option>
-                        )}
-                      </select>
-                    </div>
-                  </div>
 
-                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 space-y-3">
-                    <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-                      <Type className="w-4 h-4 text-fuchsia-500" /> Story Font
-                    </span>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => setFontFamily('sans')}
-                        className={`flex-1 py-3 px-2 text-sm font-bold rounded-xl transition-all ${fontFamily === 'sans' ? 'bg-fuchsia-500 text-white shadow-md font-sans' : 'bg-white dark:bg-slate-900 text-slate-500 shadow-sm border border-slate-100 dark:border-slate-700 font-sans'}`}
-                      >
-                        Modern
-                      </button>
-                      <button 
-                        onClick={() => setFontFamily('serif')}
-                        className={`flex-1 py-3 px-2 text-sm font-bold rounded-xl transition-all ${fontFamily === 'serif' ? 'bg-amber-500 text-white shadow-md font-serif' : 'bg-white dark:bg-slate-900 text-slate-500 shadow-sm border border-slate-100 dark:border-slate-700 font-serif'}`}
-                      >
-                        Classic
-                      </button>
+                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 mb-3">
+                        <Volume2 className="w-4 h-4 text-violet-500" /> Voice Speed
+                      </span>
+                      <div className="flex gap-2">
+                        {[0.5, 1, 1.5, 2].map(speed => (
+                          <button 
+                            key={speed}
+                            onClick={() => setSpeechRate(speed)}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${speechRate === speed ? 'bg-violet-500 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                          >
+                            {speed}x
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-between">
+                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2" title="Sound Effects">
+                        <Sparkles className="w-4 h-4 text-amber-500" /> VFX Sound 
+                      </span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={vfxEnabled} onChange={(e) => setVfxEnabled(e.target.checked)} />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-fuchsia-500"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <Volume2 className="w-4 h-4 text-blue-500" /> Background Music
+                      </span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={bgmEnabled} onChange={(e) => setBgmEnabled(e.target.checked)} />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-fuchsia-500"></div>
+                      </label>
                     </div>
                   </div>
                 </div>

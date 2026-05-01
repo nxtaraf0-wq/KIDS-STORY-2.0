@@ -44,7 +44,7 @@ export default function SearchResults() {
           .map(d => ({ id: d.id, ...d.data() } as Story))
           .filter(s => 
             (s.title && s.title.toLowerCase().includes(qLower)) || 
-            (s.excerpt && s.excerpt.toLowerCase().includes(qLower)) ||
+            (s.metaDescription && s.metaDescription.toLowerCase().includes(qLower)) ||
             (s.content && s.content.toLowerCase().includes(qLower))
           );
         

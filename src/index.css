@@ -1,8 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Comic+Neue:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Fira+Code:wght@400;600&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Nunito", "Noto Sans Devanagari", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Lora", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-comic: "Comic Neue", "Comic Sans MS", cursive, sans-serif;
   --color-primary: #a78bfa;
 }
 
