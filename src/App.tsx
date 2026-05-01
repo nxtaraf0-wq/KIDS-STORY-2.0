@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import CategoryView from './pages/CategoryView';
 import StoryDetail from './pages/StoryDetail';
+import SearchResults from './pages/SearchResults';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="categories" element={<CategoryView />} />
             <Route path="categories/:slug" element={<CategoryView />} />
             <Route path="story/:slug" element={<StoryDetail />} />
+            <Route path="search" element={<SearchResults />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<Terms />} />
           </Route>

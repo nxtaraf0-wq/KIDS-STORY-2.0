@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
-import { Moon, Sun, BookOpen, Menu, X, Sparkles, Heart, Star, Compass, Settings as SettingsIcon, Type, Volume2, Headphones } from 'lucide-react';
+import { Moon, Sun, BookOpen, Menu, X, Sparkles, Heart, Star, Compass, Settings as SettingsIcon, Type, Volume2, Headphones, Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
@@ -9,6 +9,8 @@ export default function Header() {
   const { isDarkMode, toggleDarkMode, speechRate, setSpeechRate, fontFamily, setFontFamily, selectedVoiceURI, setSelectedVoiceURI } = useStore();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -76,6 +78,13 @@ export default function Header() {
                </Link>
             )}
             <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2.5 rounded-2xl hover:bg-violet-100 dark:hover:bg-slate-800 transition-all text-violet-600 dark:text-amber-400 font-bold flex items-center gap-2"
+              title="Search"
+            >
+              <Search className="w-5 h-5" /> Search
+            </button>
+            <button 
               onClick={() => setIsMobileMenuOpen(true)}
               className="p-2.5 rounded-2xl hover:bg-violet-100 dark:hover:bg-slate-800 transition-all text-violet-600 dark:text-amber-400 font-bold flex items-center gap-2"
             >
@@ -84,14 +93,74 @@ export default function Header() {
           </nav>
 
           {/* Mobile Menu Toggle */}
-          <button 
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden p-2.5 rounded-2xl bg-violet-50 dark:bg-slate-800 text-violet-600 dark:text-violet-400 hover:bg-violet-100 transition-colors"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2.5 rounded-2xl bg-violet-50 dark:bg-slate-800 text-violet-600 dark:text-violet-400 hover:bg-violet-100 transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2.5 rounded-2xl bg-violet-50 dark:bg-slate-800 text-violet-600 dark:text-violet-400 hover:bg-violet-100 transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Search Modal */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSearchOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[80]"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className="fixed top-20 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[600px] bg-white dark:bg-slate-900 z-[90] shadow-2xl rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800"
+            >
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (searchQuery.trim()) {
+                    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                  }
+                }}
+                className="flex items-center p-2"
+              >
+                <div className="pl-4 text-slate-400">
+                  <Search className="w-6 h-6" />
+                </div>
+                <input 
+                  type="text" 
+                  autoFocus
+                  placeholder="Search for amazing stories..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-transparent border-none focus:outline-none px-4 py-4 text-lg font-medium text-slate-700 dark:text-slate-200"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="p-3 text-slate-400 hover:text-slate-600 dark:hover:text-amber-400 transition-colors bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-2xl mr-2"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Mobile/Sidebar Menu */}
       <AnimatePresence>
