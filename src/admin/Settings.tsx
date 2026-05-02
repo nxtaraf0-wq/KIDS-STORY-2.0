@@ -63,7 +63,7 @@ export default function Settings() {
           keywords: 'story, kids, fun',
           readingTime: 3,
           views: Math.floor(Math.random() * 1000),
-          published: true,
+          status: 'published',
           createdAt: now - (i * 100000),
           updatedAt: now,
           authorId

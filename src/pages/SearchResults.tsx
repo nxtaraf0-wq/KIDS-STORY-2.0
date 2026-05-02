@@ -32,7 +32,7 @@ export default function SearchResults() {
         // For large datasets, consider a real search extension like Algolia or Typesense.
         const q = query(
           collection(db, 'stories'), 
-          where('published', '==', true),
+          where('status', '==', 'published'),
           orderBy('createdAt', 'desc'),
           limit(100)
         );

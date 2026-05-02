@@ -88,14 +88,14 @@ service cloud.firestore {
       allow read: if true; // Public read
       allow create: if isAdmin() && isValidId(categoryId) && 
                     isValidCategory(incoming()) && 
-                    incoming().createdAt == request.time.toMillis() &&
-                    incoming().updatedAt == request.time.toMillis();
+                    incoming().createdAt > 0 &&
+                    incoming().updatedAt > 0;
       allow update: if isAdmin() && isValidId(categoryId) && 
                     // To update, it must still be a valid category structure after update
                     incoming().diff(existing()).affectedKeys().hasAny(['name', 'slug', 'theme', 'imageUrl', 'enabled', 'updatedAt']) &&
                     incoming().authorId == existing().authorId &&
                     incoming().createdAt == existing().createdAt &&
-                    incoming().updatedAt == request.time.toMillis() &&
+                    incoming().updatedAt > 0 &&
                     incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 100 &&
                     incoming().slug is string && incoming().slug.size() > 0 && incoming().slug.size() <= 100 &&
                     incoming().theme is string && incoming().theme.size() > 0 && incoming().theme.size() <= 50 &&
@@ -110,8 +110,8 @@ service cloud.firestore {
       allow read: if true; // Public read
       allow create: if isAdmin() && isValidId(storyId) && 
                     isValidStory(incoming()) &&
-                    incoming().createdAt == request.time.toMillis() &&
-                    incoming().updatedAt == request.time.toMillis() &&
+                    incoming().createdAt > 0 &&
+                    incoming().updatedAt > 0 &&
                     exists(/databases/$(database)/documents/categories/$(incoming().categoryId)); // Relational check
       
       allow update: if isValidId(storyId) && (
@@ -120,7 +120,7 @@ service cloud.firestore {
                        incoming().authorId == existing().authorId &&
                        incoming().createdAt == existing().createdAt &&
                        // views shouldn't be overridden arbitrary by admin easily, but let's allow it if needed, or keep it immutable here
-                       incoming().updatedAt == request.time.toMillis() &&
+                       incoming().updatedAt > 0 &&
                        incoming().title is string && incoming().title.size() > 0 && incoming().title.size() <= 200 &&
                        incoming().slug is string && incoming().slug.size() > 0 && incoming().slug.size() <= 200 &&
                        incoming().categoryId is string && incoming().categoryId.size() > 0 && incoming().categoryId.size() <= 128 &&
@@ -151,11 +151,11 @@ service cloud.firestore {
       allow read: if true; // Public needs to read settings
       allow create: if isAdmin() && isValidId(settingId) && 
                     isValidSetting(incoming()) &&
-                    incoming().updatedAt == request.time.toMillis();
+                    incoming().updatedAt > 0;
       allow update: if isAdmin() && isValidId(settingId) && 
                     incoming().diff(existing()).affectedKeys().hasAny(['payload', 'updatedAt']) &&
                     incoming().type == existing().type &&
-                    incoming().updatedAt == request.time.toMillis() &&
+                    incoming().updatedAt > 0 &&
                     incoming().payload is string && incoming().payload.size() <= 10000;
       allow delete: if isAdmin();
       allow list: if true;

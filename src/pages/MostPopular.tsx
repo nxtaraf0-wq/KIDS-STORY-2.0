@@ -18,7 +18,7 @@ export default function MostPopular() {
       try {
         const q = query(
           collection(db, 'stories'), 
-          where('published', '==', true),
+          where('status', '==', 'published'),
           orderBy('views', 'desc'),
           limit(50)
         );
