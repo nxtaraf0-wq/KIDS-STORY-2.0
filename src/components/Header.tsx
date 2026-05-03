@@ -302,6 +302,41 @@ export default function Header() {
                       </label>
                     </div>
                   </div>
+
+                  <h3 className="text-sm font-extrabold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 mt-6">
+                    <SettingsIcon className="w-4 h-4 text-slate-500" /> Account Options
+                  </h3>
+
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 mb-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto max-h-[30vh] pr-2 mb-4 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600">
+                      {[
+                        "Profile Privacy", "Email Notifications", "Activity Status", "Cloud Sync", 
+                        "Data Usage Saver", "Reading History", "Content Filtering", "Parental Controls", 
+                        "Two-Factor Auth", "Backup Settings", "Offline Mode", "Language Preferences", 
+                        "Download Quality", "Autoplay Next", "Push Alerts", "Weekly Reports", 
+                        "Accessibility", "Avatar Settings", "Subscription Plan", "Payment Methods", 
+                        "Review Devices", "Connected Accounts", "Invite Friends", "Help & Support", 
+                        "Clear Cache", "Report an Issue", "Beta Features", "Rate App"
+                      ].map((variant, i) => (
+                        <button 
+                          key={i} 
+                          className="text-left px-3 py-2 text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors truncate"
+                        >
+                          {variant}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-700 mt-2 flex justify-center">
+                      <Link 
+                        to="/admin" 
+                        onClick={() => setIsSettingsOpen(false)}
+                        className="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-80 uppercase tracking-widest py-2 px-4 rounded-xl border border-violet-200 dark:border-slate-700 hover:bg-violet-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+                      >
+                        Authority Login
+                      </Link>
+                    </div>
+                  </div>
               </div>
             </motion.div>
           </>

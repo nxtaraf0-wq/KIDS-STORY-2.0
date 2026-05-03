@@ -261,17 +261,30 @@ export default function StoryDetail() {
 
         {/* Interaction section */}
         <div className="mt-12 pt-8 border-t border-violet-100 dark:border-slate-800 flex flex-col items-center gap-6">
-          <button
-            onClick={() => likedStories.includes(story.id) ? unlikeStory(story.id) : likeStory(story.id)}
-            className={`flex items-center gap-2 px-8 py-4 rounded-3xl font-extrabold text-lg transition-all shadow-md group ${
-              likedStories.includes(story.id)
-                ? 'bg-rose-500 text-white shadow-rose-500/30' 
-                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-            }`}
-          >
-            <Heart className={`w-6 h-6 ${likedStories.includes(story.id) ? 'fill-current text-white scale-110' : 'text-slate-400 group-hover:text-rose-500 transition-colors'}`} /> 
-            {likedStories.includes(story.id) ? 'Liked! ❤️' : 'Like this story'}
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => likedStories.includes(story.id) ? unlikeStory(story.id) : likeStory(story.id)}
+              className={`flex items-center gap-2 px-8 py-4 rounded-3xl font-extrabold text-lg transition-all shadow-md group ${
+                likedStories.includes(story.id)
+                  ? 'bg-rose-500 text-white shadow-rose-500/30' 
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Heart className={`w-6 h-6 ${likedStories.includes(story.id) ? 'fill-current text-white scale-110' : 'text-slate-400 group-hover:text-rose-500 transition-colors'}`} /> 
+              {likedStories.includes(story.id) ? 'Liked! ❤️' : 'Like this story'}
+            </button>
+            <button
+              onClick={toggleBookmark}
+              className={`flex items-center gap-2 px-8 py-4 rounded-3xl font-extrabold text-lg transition-all shadow-md group ${
+                isBookmarked
+                  ? 'bg-amber-500 text-white shadow-amber-500/30' 
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Bookmark className={`w-6 h-6 ${isBookmarked ? 'fill-current text-white scale-110' : 'text-slate-400 group-hover:text-amber-500 transition-colors'}`} />
+              {isBookmarked ? 'Saved' : 'Save'}
+            </button>
+          </div>
 
           <div className="flex flex-col items-center gap-2">
             <span className="text-sm font-bold text-slate-500 dark:text-slate-400 capitalize">Rate this story</span>
